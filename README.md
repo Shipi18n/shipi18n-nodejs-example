@@ -283,14 +283,32 @@ npm run test:coverage
 
 ---
 
-## Related Projects
+## Documentation & Resources
 
-- [@shipi18n/api](https://www.npmjs.com/package/@shipi18n/api) - Official API client
-- [@shipi18n/cli](https://www.npmjs.com/package/@shipi18n/cli) - CLI tool
-- [vite-plugin-shipi18n](https://www.npmjs.com/package/vite-plugin-shipi18n) - Vite plugin
-- [shipi18n-vue-example](https://github.com/shipi18n/shipi18n-vue-example) - Vue.js example
-- [shipi18n-react-example](https://github.com/shipi18n/shipi18n-react-example) - React example
-- [shipi18n-nextjs-example](https://github.com/shipi18n/shipi18n-nextjs-example) - Next.js example
+📚 **Full Documentation:** [shipi18n.com/integrations/nodejs](https://shipi18n.com/integrations/nodejs)
+
+| Resource | Link |
+|----------|------|
+| **Getting Started** | [shipi18n.com](https://shipi18n.com) |
+| **API Reference** | [shipi18n.com/api](https://shipi18n.com/api) |
+| **i18next Best Practices** | [shipi18n.com/integrations/react](https://shipi18n.com/integrations/react) |
+| **Blog & Tutorials** | [shipi18n.com/blog](https://shipi18n.com/blog) |
+
+---
+
+## Related Packages
+
+| Package | Description |
+|---------|-------------|
+| [@shipi18n/api](https://www.npmjs.com/package/@shipi18n/api) | Node.js SDK for programmatic use |
+| [@shipi18n/cli](https://www.npmjs.com/package/@shipi18n/cli) | CLI tool for translating files |
+| [vite-plugin-shipi18n](https://www.npmjs.com/package/vite-plugin-shipi18n) | Vite plugin for build-time translation |
+| [i18next-shipi18n-backend](https://www.npmjs.com/package/i18next-shipi18n-backend) | i18next backend for dynamic loading |
+| [shipi18n-github-action](https://github.com/marketplace/actions/shipi18n-auto-translate) | GitHub Action for CI/CD |
+
+## Other Examples
+
+- [Vue Example](https://github.com/Shipi18n/shipi18n-vue-example) - Vue 3 + vue-i18n integration
 
 ---
 
@@ -300,4 +318,8 @@ MIT License
 
 ---
 
-Built with [Shipi18n](https://shipi18n.com) - Smart translation API for developers
+<p align="center">
+  <a href="https://shipi18n.com">shipi18n.com</a> ·
+  <a href="https://github.com/Shipi18n">GitHub</a> ·
+  <a href="https://shipi18n.com/pricing">Pricing</a>
+</p>
