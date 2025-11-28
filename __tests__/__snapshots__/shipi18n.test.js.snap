@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Translation Response Snapshots should match expected JSON translation response structure 1`] = `
+{
+  "es": {
+    "common": {
+      "buttons": {
+        "cancel": "Cancelar",
+        "submit": "Enviar",
+      },
+      "farewell": "Adiós",
+      "greeting": "Hola",
+    },
+  },
+  "fr": {
+    "common": {
+      "buttons": {
+        "cancel": "Annuler",
+        "submit": "Soumettre",
+      },
+      "farewell": "Au revoir",
+      "greeting": "Bonjour",
+    },
+  },
+}
+`;
+
+exports[`Translation Response Snapshots should match expected pluralization response structure 1`] = `
+{
+  "es": {
+    "items_one": "{{count}} artículo",
+    "items_other": "{{count}} artículos",
+  },
+  "ru": {
+    "items_few": "{{count}} элемента",
+    "items_many": "{{count}} элементов",
+    "items_one": "{{count}} элемент",
+    "items_other": "{{count}} элементов",
+  },
+}
+`;
+
+exports[`Translation Response Snapshots should match expected text translation response structure 1`] = `
+{
+  "es": [
+    {
+      "original": "Hello, world!",
+      "translated": "¡Hola, mundo!",
+    },
+    {
+      "original": "Welcome back",
+      "translated": "Bienvenido de nuevo",
+    },
+  ],
+}
+`;

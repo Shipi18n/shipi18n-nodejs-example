@@ -334,3 +334,186 @@ describe('Utility Functions', () => {
     });
   });
 });
+
+/**
+ * Snapshot tests to ensure translation response structure consistency
+ */
+describe('Translation Response Snapshots', () => {
+  beforeEach(() => {
+    mockFetch.mockClear();
+  });
+
+  it('should match expected JSON translation response structure', async () => {
+    const mockResponse = {
+      es: {
+        common: {
+          greeting: 'Hola',
+          farewell: 'Adiós',
+          buttons: {
+            submit: 'Enviar',
+            cancel: 'Cancelar'
+          }
+        }
+      },
+      fr: {
+        common: {
+          greeting: 'Bonjour',
+          farewell: 'Au revoir',
+          buttons: {
+            submit: 'Soumettre',
+            cancel: 'Annuler'
+          }
+        }
+      }
+    };
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    const { Shipi18n } = await import('@shipi18n/api');
+    const client = new Shipi18n({ apiKey: 'test-api-key' });
+
+    const result = await client.translateJSON({
+      content: {
+        common: {
+          greeting: 'Hello',
+          farewell: 'Goodbye',
+          buttons: {
+            submit: 'Submit',
+            cancel: 'Cancel'
+          }
+        }
+      },
+      sourceLanguage: 'en',
+      targetLanguages: ['es', 'fr'],
+    });
+
+    // Snapshot test for response structure
+    expect(result).toMatchSnapshot();
+  });
+
+  it('should match expected pluralization response structure', async () => {
+    const mockResponse = {
+      es: {
+        items_one: '{{count}} artículo',
+        items_other: '{{count}} artículos'
+      },
+      ru: {
+        items_one: '{{count}} элемент',
+        items_few: '{{count}} элемента',
+        items_many: '{{count}} элементов',
+        items_other: '{{count}} элементов'
+      }
+    };
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    const { Shipi18n } = await import('@shipi18n/api');
+    const client = new Shipi18n({ apiKey: 'test-api-key' });
+
+    const result = await client.translateI18next({
+      content: {
+        items_one: '{{count}} item',
+        items_other: '{{count}} items'
+      },
+      sourceLanguage: 'en',
+      targetLanguages: ['es', 'ru'],
+    });
+
+    // Snapshot test for pluralization structure
+    expect(result).toMatchSnapshot();
+  });
+
+  it('should match expected text translation response structure', async () => {
+    const mockResponse = {
+      es: [
+        { original: 'Hello, world!', translated: '¡Hola, mundo!' },
+        { original: 'Welcome back', translated: 'Bienvenido de nuevo' }
+      ]
+    };
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    const { Shipi18n } = await import('@shipi18n/api');
+    const client = new Shipi18n({ apiKey: 'test-api-key' });
+
+    const result = await client.translateText({
+      content: ['Hello, world!', 'Welcome back'],
+      sourceLanguage: 'en',
+      targetLanguages: ['es'],
+    });
+
+    // Snapshot test for text translation structure
+    expect(result).toMatchSnapshot();
+  });
+});
+
+/**
+ * Example code validation tests
+ * These tests ensure the example code patterns in src/*.js work correctly
+ */
+describe('Example Code Validation', () => {
+  beforeEach(() => {
+    mockFetch.mockClear();
+  });
+
+  it('validates translate-json.js example pattern', async () => {
+    // This mirrors the pattern used in src/translate-json.js
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        es: { greeting: 'Hola', farewell: 'Adiós' }
+      }),
+    });
+
+    const { Shipi18n } = await import('@shipi18n/api');
+    const shipi18n = new Shipi18n({ apiKey: 'test-key' });
+
+    const content = { greeting: 'Hello', farewell: 'Goodbye' };
+    const result = await shipi18n.translateJSON({
+      content,
+      sourceLanguage: 'en',
+      targetLanguages: ['es'],
+    });
+
+    // Verify the pattern works as expected
+    expect(result).toHaveProperty('es');
+    expect(Object.keys(result.es)).toEqual(Object.keys(content));
+  });
+
+  it('validates translate-file.js example pattern', async () => {
+    // This mirrors the pattern used in src/translate-file.js
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        es: { app: { title: 'Mi App' } },
+        fr: { app: { title: 'Mon App' } }
+      }),
+    });
+
+    const { Shipi18n } = await import('@shipi18n/api');
+    const shipi18n = new Shipi18n({ apiKey: 'test-key' });
+
+    const sourceContent = { app: { title: 'My App' } };
+    const targetLanguages = ['es', 'fr'];
+
+    const result = await shipi18n.translateJSON({
+      content: sourceContent,
+      sourceLanguage: 'en',
+      targetLanguages,
+    });
+
+    // Verify all target languages are present
+    for (const lang of targetLanguages) {
+      expect(result).toHaveProperty(lang);
+    }
+  });
+});
