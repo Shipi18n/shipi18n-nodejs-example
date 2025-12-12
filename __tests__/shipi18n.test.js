@@ -234,7 +234,7 @@ describe('Shipi18n API Client', () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('https://api.shipi18n.com'),
+        expect.stringContaining('https://ydjkwckq3f.execute-api.us-east-1.amazonaws.com'),
         expect.any(Object)
       );
     });

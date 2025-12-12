@@ -29,7 +29,7 @@ async function main() {
   // Initialize the client
   const shipi18n = new Shipi18n({
     apiKey,
-    baseUrl: process.env.SHIPI18N_API_URL || 'https://api.shipi18n.com',
+    baseUrl: process.env.SHIPI18N_API_URL || 'https://ydjkwckq3f.execute-api.us-east-1.amazonaws.com',
   });
 
   console.log('Shipi18n Node.js Example');
