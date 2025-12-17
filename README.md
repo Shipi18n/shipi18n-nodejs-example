@@ -19,6 +19,7 @@ This example demonstrates:
 - **File translation** - Read, translate, and save locale files
 - **i18next support** - Full support for namespaces, pluralization, and placeholders
 - **Multiple languages** - Translate to many languages in a single API call
+- **Skip keys** - Keep brand names, state codes, or config values untranslated
 
 ---
 
@@ -71,10 +72,11 @@ SHIPI18N_API_KEY=sk_live_your_api_key_here
 npm start
 
 # Individual examples
-npm run translate:json      # JSON object translation
-npm run translate:text      # Plain text translation
-npm run translate:file      # File-based translation
-npm run translate:i18next   # i18next-style translation
+npm run translate:json       # JSON object translation
+npm run translate:text       # Plain text translation
+npm run translate:file       # File-based translation
+npm run translate:i18next    # i18next-style translation
+npm run translate:skip-keys  # Skip keys from translation
 ```
 
 ---
@@ -84,17 +86,18 @@ npm run translate:i18next   # i18next-style translation
 ```
 shipi18n-nodejs-example/
 ├── src/
-│   ├── index.js              # Main example (translate locale file)
-│   ├── translate-json.js     # JSON object translation
-│   ├── translate-text.js     # Plain text translation
-│   ├── translate-file.js     # File-based translation
-│   └── translate-i18next.js  # i18next-style translation
+│   ├── index.js               # Main example (translate locale file)
+│   ├── translate-json.js      # JSON object translation
+│   ├── translate-text.js      # Plain text translation
+│   ├── translate-file.js      # File-based translation
+│   ├── translate-i18next.js   # i18next-style translation
+│   └── translate-skip-keys.js # Skip keys from translation
 ├── locales/
-│   └── en.json               # Sample English locale file
-├── output/                   # Generated translation files
+│   └── en.json                # Sample English locale file
+├── output/                    # Generated translation files
 ├── __tests__/
-│   └── shipi18n.test.js      # Test suite
-├── .env.example              # Environment template
+│   └── shipi18n.test.js       # Test suite
+├── .env.example               # Environment template
 ├── package.json
 └── README.md
 ```
@@ -185,6 +188,52 @@ for (const lang of ['es', 'fr', 'de']) {
   await writeFile(`locales/${lang}.json`, JSON.stringify(result[lang], null, 2));
 }
 ```
+
+### Skip Keys from Translation
+
+Keep brand names, US state codes, or config values untranslated:
+
+```javascript
+const result = await shipi18n.translateJSON({
+  content: {
+    greeting: 'Hello',
+    brandName: 'Acme Inc',
+    states: {
+      CA: 'California',
+      NY: 'New York',
+      TX: 'Texas',
+    },
+    config: {
+      api: { key: 'abc123', secret: 'xyz789' },
+    },
+  },
+  sourceLanguage: 'en',
+  targetLanguages: ['es', 'fr'],
+  // Skip exact key paths
+  skipKeys: ['brandName', 'config.api.secret'],
+  // Skip using glob patterns
+  skipPaths: ['states.*'],
+});
+
+// Skipped keys remain in English:
+console.log(result.es.brandName);     // 'Acme Inc' (unchanged)
+console.log(result.es.states.CA);     // 'California' (unchanged)
+console.log(result.es.greeting);      // 'Hola' (translated)
+
+// Check what was skipped:
+if (result.skipped) {
+  console.log(`Skipped ${result.skipped.count} keys:`, result.skipped.keys);
+  // Skipped 5 keys: ['brandName', 'states.CA', 'states.NY', 'states.TX', 'config.api.secret']
+}
+```
+
+**Pattern Matching:**
+| Pattern | Matches |
+|---------|---------|
+| `states.CA` | Exact path only |
+| `states.*` | `states.CA`, `states.NY`, `states.TX` (single level) |
+| `config.*.secret` | `config.api.secret`, `config.db.secret` |
+| `**.internal` | Any path ending with `.internal` |
 
 ---
 

@@ -10,6 +10,7 @@
     "translate:text": "node src/translate-text.js",
     "translate:file": "node src/translate-file.js",
     "translate:i18next": "node src/translate-i18next.js",
+    "translate:skip-keys": "node src/translate-skip-keys.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
