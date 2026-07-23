@@ -1,6 +1,6 @@
 # Shipi18n Node.js Example
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Shipi18n/shipi18n-nodejs-example)](https://github.com/Shipi18n/shipi18n-nodejs-example)
 [![CI](https://github.com/Shipi18n/shipi18n-nodejs-example/actions/workflows/ci.yml/badge.svg)](https://github.com/Shipi18n/shipi18n-nodejs-example/actions)
 
@@ -363,7 +363,7 @@ npm run test:coverage
 
 ## License
 
-MIT License
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE). License
 
 ---
 
