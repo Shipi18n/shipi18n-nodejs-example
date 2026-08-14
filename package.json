@@ -1,7 +1,7 @@
 {
   "name": "shipi18n-nodejs-example",
   "version": "1.0.0",
-  "description": "Node.js example for Shipi18n translation API",
+  "description": "Node.js example: translate i18n files with @shipi18n/core and your own LLM key",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "translate:text": "node src/translate-text.js",
     "translate:file": "node src/translate-file.js",
     "translate:i18next": "node src/translate-i18next.js",
-    "translate:skip-keys": "node src/translate-skip-keys.js",
+    "translate:incremental": "node src/translate-incremental.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
@@ -20,7 +20,11 @@
     "internationalization",
     "localization",
     "shipi18n",
-    "nodejs"
+    "nodejs",
+    "llm",
+    "anthropic",
+    "openai",
+    "bring-your-own-key"
   ],
   "author": "Shipi18n",
   "license": "Apache-2.0",
@@ -28,7 +32,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@shipi18n/api": "^1.0.0"
+    "@shipi18n/core": "^2.0.0",
+    "@anthropic-ai/sdk": "^0.114.0"
   },
   "devDependencies": {
     "dotenv": "^16.3.1",

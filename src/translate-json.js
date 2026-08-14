@@ -1,60 +1,30 @@
 /**
- * Shipi18n Node.js Example - JSON Translation
+ * Translate a JSON object in memory.
  *
- * Demonstrates translating a JSON object with nested structure.
+ * The simplest possible use of the engine: object in, object out, same shape.
  *
  * Run with: npm run translate:json
  */
 
-import 'dotenv/config';
-import { Shipi18n } from '@shipi18n/api';
+import 'dotenv/config'
+import { translateJSON } from '@shipi18n/core'
 
-async function main() {
-  const apiKey = process.env.SHIPI18N_API_KEY;
-  if (!apiKey || apiKey === 'sk_live_your_api_key_here') {
-    console.error('Error: Please set your SHIPI18N_API_KEY in .env file');
-    process.exit(1);
-  }
-
-  const shipi18n = new Shipi18n({ apiKey });
-
-  console.log('JSON Translation Example');
-  console.log('========================\n');
-
-  const content = {
-    greeting: 'Hello',
-    farewell: 'Goodbye',
-    buttons: {
-      submit: 'Submit',
-      cancel: 'Cancel',
-      save: 'Save changes',
-    },
-    messages: {
-      success: 'Your changes have been saved',
-      error: 'Something went wrong',
-    },
-  };
-
-  console.log('Source JSON:');
-  console.log(JSON.stringify(content, null, 2));
-  console.log('\nTranslating to Spanish and French...\n');
-
-  try {
-    const result = await shipi18n.translateJSON({
-      content,
-      sourceLanguage: 'en',
-      targetLanguages: ['es', 'fr'],
-    });
-
-    console.log('Spanish (es):');
-    console.log(JSON.stringify(result.es, null, 2));
-
-    console.log('\nFrench (fr):');
-    console.log(JSON.stringify(result.fr, null, 2));
-  } catch (error) {
-    console.error('Translation failed:', error.message);
-    process.exit(1);
-  }
+const content = {
+  title: 'Welcome to our app',
+  subtitle: 'The best way to manage your projects',
+  cta: 'Get started for free',
+  greeting: 'Hello, {{name}}!',
 }
 
-main();
+const { result, stats } = await translateJSON({
+  content,
+  from: 'en',
+  to: 'es',
+  provider: 'anthropic', // or 'openai'
+})
+
+console.log('Source:')
+console.log(JSON.stringify(content, null, 2))
+console.log('\nSpanish:')
+console.log(JSON.stringify(result, null, 2))
+console.log(`\ntranslated: ${stats.translated}  reused: ${stats.reused}`)

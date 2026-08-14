@@ -1,128 +1,86 @@
 /**
- * Shipi18n Node.js Example - Main Entry Point
+ * Shipi18n Node.js Example — main entry point.
  *
- * This example demonstrates how to use the @shipi18n/api package
- * to translate i18n files in a Node.js application.
+ * Translates a locale file into several languages with @shipi18n/core, using
+ * YOUR OWN LLM key. There is no Shipi18n API, account or key: the request goes
+ * from this process straight to Anthropic (or OpenAI) and back.
  *
  * Run with: npm start
  */
 
-import 'dotenv/config';
-import { Shipi18n } from '@shipi18n/api';
-import { readFile, writeFile, mkdir } from 'fs/promises';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import 'dotenv/config'
+import { translateJSON, flatten } from '@shipi18n/core'
+import { readFile, writeFile, mkdir } from 'fs/promises'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const localesDir = join(__dirname, '..', 'locales');
-const outputDir = join(__dirname, '..', 'output');
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const localesDir = join(__dirname, '..', 'locales')
+const outputDir = join(__dirname, '..', 'output')
+
+const TARGETS = ['es', 'fr', 'de']
+const PROVIDER = process.env.SHIPI18N_PROVIDER || 'anthropic'
 
 async function main() {
-  // Validate API key
-  const apiKey = process.env.SHIPI18N_API_KEY;
-  if (!apiKey || apiKey === 'sk_live_your_api_key_here') {
-    console.error('Error: Please set your SHIPI18N_API_KEY in .env file');
-    console.error('Get your free API key at https://shipi18n.com');
-    process.exit(1);
+  // The key is your provider's, read from the environment. core falls back to
+  // ANTHROPIC_API_KEY / OPENAI_API_KEY on its own, so passing it is optional —
+  // we check here only to fail with a clear message instead of a stack trace.
+  const apiKey = PROVIDER === 'openai' ? process.env.OPENAI_API_KEY : process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    const varName = PROVIDER === 'openai' ? 'OPENAI_API_KEY' : 'ANTHROPIC_API_KEY'
+    console.error(`Error: set ${varName} in your environment or .env file.`)
+    console.error('Shipi18n has no account — bring a key from your own LLM provider.')
+    process.exit(1)
   }
 
-  // Initialize the client
-  const shipi18n = new Shipi18n({
-    apiKey,
-    baseUrl: process.env.SHIPI18N_API_URL || 'https://ydjkwckq3f.execute-api.us-east-1.amazonaws.com',
-  });
+  console.log('Shipi18n Node.js Example')
+  console.log('========================\n')
 
-  console.log('Shipi18n Node.js Example');
-  console.log('========================\n');
+  const sourceJSON = JSON.parse(await readFile(join(localesDir, 'en.json'), 'utf-8'))
+  console.log('Source file: locales/en.json')
+  console.log(`Keys to translate: ${Object.keys(flatten(sourceJSON)).length}`)
+  console.log(`Target languages: ${TARGETS.join(', ')}`)
+  console.log(`Provider: ${PROVIDER}\n`)
 
-  try {
-    // Read the source locale file
-    const sourceFile = join(localesDir, 'en.json');
-    const sourceContent = await readFile(sourceFile, 'utf-8');
-    const sourceJSON = JSON.parse(sourceContent);
+  await mkdir(outputDir, { recursive: true })
 
-    console.log('Source file: locales/en.json');
-    console.log(`Keys to translate: ${countKeys(sourceJSON)}`);
-    console.log('Target languages: Spanish (es), French (fr), German (de)\n');
-
-    // Translate to multiple languages
-    console.log('Translating...\n');
-
-    const result = await shipi18n.translateJSON({
+  // core translates one language per call, so fan out here. Doing it in
+  // sequence keeps the output readable and stays clear of rate limits.
+  const results = {}
+  for (const to of TARGETS) {
+    process.stdout.write(`Translating to ${to}... `)
+    const { result, stats } = await translateJSON({
       content: sourceJSON,
-      sourceLanguage: 'en',
-      targetLanguages: ['es', 'fr', 'de'],
-      preservePlaceholders: true,
-      enablePluralization: true,
-    });
+      from: 'en',
+      to,
+      provider: PROVIDER,
+      apiKey,
+    })
+    results[to] = result
 
-    // Create output directory
-    await mkdir(outputDir, { recursive: true });
+    await writeFile(join(outputDir, `${to}.json`), JSON.stringify(result, null, 2) + '\n')
+    console.log(`${stats.translated} translated → output/${to}.json`)
 
-    // Save translated files
-    const languages = ['es', 'fr', 'de'];
-    for (const lang of languages) {
-      if (result[lang]) {
-        const outputFile = join(outputDir, `${lang}.json`);
-        await writeFile(outputFile, JSON.stringify(result[lang], null, 2));
-        console.log(`Saved: output/${lang}.json`);
-      }
-    }
-
-    console.log('\nTranslation complete!');
-    console.log('\nSample translations (Spanish):');
-    console.log('------------------------------');
-
-    const esResult = result.es;
-    if (esResult && typeof esResult === 'object') {
-      const common = esResult.common;
-      if (common && typeof common === 'object') {
-        console.log(`welcome: "${common.welcome}"`);
-        console.log(`goodbye: "${common.goodbye}"`);
-      }
-      const dashboard = esResult.dashboard;
-      if (dashboard && typeof dashboard === 'object') {
-        console.log(`greeting: "${dashboard.greeting}"`);
-        console.log(`items_one: "${dashboard.items_one}"`);
-        console.log(`items_other: "${dashboard.items_other}"`);
-      }
-    }
-
-    // Show warnings if any
-    if (result.warnings && Array.isArray(result.warnings) && result.warnings.length > 0) {
-      console.log('\nWarnings:');
-      result.warnings.forEach((w) => console.log(`  - ${w.message}`));
-    }
-
-    // Show namespace info if detected
-    if (result.namespaceInfo) {
-      console.log('\nNamespace Info:');
-      console.log(`  Detected: ${result.namespaceInfo.detected}`);
-      if (result.namespaceInfo.namespaces) {
-        console.log('  Namespaces:');
-        result.namespaceInfo.namespaces.forEach((ns) => {
-          console.log(`    - ${ns.name}: ${ns.keyCount} keys`);
-        });
-      }
-    }
-  } catch (error) {
-    console.error('Translation failed:', error.message);
-    if (error.code) {
-      console.error('Error code:', error.code);
-    }
-    process.exit(1);
-  }
-}
-
-function countKeys(obj, count = 0) {
-  for (const key in obj) {
-    if (typeof obj[key] === 'object' && obj[key] !== null) {
-      count = countKeys(obj[key], count);
-    } else {
-      count++;
+    // Never ignore this. A dropped placeholder is a crash in production, and
+    // it is the one failure mode a language model will not tell you about.
+    if (stats.placeholderWarnings.length) {
+      console.warn(`  ⚠ ${stats.placeholderWarnings.length} placeholder warning(s):`)
+      for (const w of stats.placeholderWarnings) console.warn(`    ${w.key}: missing ${w.missing.join(', ')}`)
     }
   }
-  return count;
+
+  console.log('\nSample translations (Spanish):')
+  console.log('------------------------------')
+  const es = results.es
+  console.log(`welcome:     "${es.common?.welcome}"`)
+  console.log(`goodbye:     "${es.common?.goodbye}"`)
+  console.log(`greeting:    "${es.dashboard?.greeting}"`)
+  console.log(`items_one:   "${es.dashboard?.items_one}"`)
+  console.log(`items_other: "${es.dashboard?.items_other}"`)
+  console.log('\nPlaceholders like {{name}} and {{count}} are preserved exactly.')
 }
 
-main();
+main().catch((err) => {
+  console.error('Translation failed:', err.message)
+  process.exit(1)
+})
