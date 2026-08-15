@@ -107,8 +107,9 @@ Placeholders are extracted before the request and verified after it. Anything th
 
 ```js
 if (stats.placeholderWarnings.length) {
+  // Each entry is { path, source, translation, ok, missing, added }
   for (const w of stats.placeholderWarnings) {
-    console.warn(`${w.key}: missing ${w.missing.join(', ')}`)
+    console.warn(`${w.path}: missing ${w.missing.join(', ')}`)
   }
   process.exit(1)   // fail the build rather than ship a broken string
 }

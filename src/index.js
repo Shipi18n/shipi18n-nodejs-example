@@ -65,7 +65,10 @@ async function main() {
     // it is the one failure mode a language model will not tell you about.
     if (stats.placeholderWarnings.length) {
       console.warn(`  ⚠ ${stats.placeholderWarnings.length} placeholder warning(s):`)
-      for (const w of stats.placeholderWarnings) console.warn(`    ${w.key}: missing ${w.missing.join(', ')}`)
+      // Each warning is { path, source, translation, ok, missing, added }.
+      for (const w of stats.placeholderWarnings) {
+        console.warn(`    ${w.path}: missing ${w.missing.join(', ')}`)
+      }
     }
   }
 
